@@ -9,13 +9,14 @@ import { UsersService } from 'src/users/users.service';
 import { Tokens } from './types/tokens.type';
 import { JwtService } from '@nestjs/jwt';
 import { Cache } from 'cache-manager';
+import { RedisCacheService } from 'src/redis/redis.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private redisService: RedisCacheService,
   ) {}
 
   // async validateUser(email: string, pass: string) {
@@ -37,9 +38,13 @@ export class AuthService {
 
     const tokens = await this.getTokens(newUser?._id, newUser?.email);
 
-    await this.cacheManager.set(newUser._id, tokens.refresh_token);
+    await this.redisService.set('' + newUser['_id'], tokens.refresh_token);
 
     return tokens;
+  }
+
+  async getFromCache(key: string) {
+    return await this.redisService.get(key);
   }
 
   async getTokens(userId: string, email: string): Promise<Tokens> {
