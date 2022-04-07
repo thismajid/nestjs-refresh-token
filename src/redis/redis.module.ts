@@ -18,6 +18,7 @@ import { RedisCacheService } from './redis.service';
           store: redisStore,
           host: 'localhost',
           port: 6379,
+          ttl: 1000,
         };
       },
     }),

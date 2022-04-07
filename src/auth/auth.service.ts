@@ -21,16 +21,6 @@ export class AuthService {
     private redisService: RedisCacheService,
   ) {}
 
-  // async validateUser(email: string, pass: string) {
-  //   const user = await this.usersService.findByEmail(email);
-
-  //   if (!user || !user.comparePassword(pass)) return false;
-
-  //   const { password, __v, ...result } = user.toObject();
-
-  //   return result;
-  // }
-
   async register(createUserDto: CreateUserDto): Promise<Tokens> {
     const { email } = createUserDto;
     const existUser = await this.usersService.findByEmail(email);
@@ -70,7 +60,7 @@ export class AuthService {
 
     if (!user) throw new ForbiddenException('Access Denied');
 
-    const storeRefreshToken = await this.getFromCache(userId);
+    const storeRefreshToken = await this.redisService.get(userId);
 
     const refreshTokenMatches = await this.compareData(
       refreshToken,
